@@ -20,6 +20,11 @@ public class QAController {
         return qaService.greetings();
     }
 
+    @GetMapping("/world/{subject}")
+    public void basicWorldAffairs(@PathVariable("subject") String subject) {
+        qaService.basicWorldAffairs(subject);
+    }
+
     @GetMapping("/weather/{city}")
     public Object getWeather(@PathVariable("city") String city) {
         return qaService.getWeather(city);
