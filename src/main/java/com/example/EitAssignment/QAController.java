@@ -21,8 +21,8 @@ public class QAController {
     }
 
     @GetMapping("/world/{subject}")
-    public void basicWorldAffairs(@PathVariable("subject") String subject) {
-        qaService.basicWorldAffairs(subject);
+    public Object basicWorldAffairs(@PathVariable("subject") String subject) {
+        return qaService.basicWorldAffairs(subject);
     }
 
     @GetMapping("/weather/{city}")

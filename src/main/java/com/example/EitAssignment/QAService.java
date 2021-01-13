@@ -7,6 +7,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class QAService {
@@ -17,7 +22,7 @@ public class QAService {
         return "Hello";
     }
 
-    public void basicWorldAffairs(String subject) {
+    public Object basicWorldAffairs(String subject) {
         //String str = "obama";
         String queryString = "PREFIX pr:<http://xmlns.com/foaf/0.1/>\n" +
                 "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
@@ -28,16 +33,27 @@ public class QAService {
                 "}";
         Query query = QueryFactory.create(queryString);
         QueryExecution qexec = QueryExecutionFactory.sparqlService("http://dbpedia.org/sparql", query);
+        List<Map> mapList = new ArrayList<>();
         try {
             ResultSet results = qexec.execSelect();
             while (results.hasNext()) {
                 QuerySolution soln = results.nextSolution();
-                //Literal name = soln.getLiteral("x");
+//                Literal name = soln.getLiteral("s");
+                Object name = soln.get("label");
+                Object url = soln.getResource("s");
+                Map<String, Object> map = new HashMap<>();
+                map.put("name", String.valueOf(name));
+                map.put("url", String.valueOf(url));
+
+                mapList.add(map);
                 System.out.println(soln);
+//                System.out.println(object);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        return mapList;
 
     }
 
