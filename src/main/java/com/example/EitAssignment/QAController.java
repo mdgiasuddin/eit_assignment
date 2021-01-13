@@ -2,10 +2,7 @@ package com.example.EitAssignment;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -16,8 +13,8 @@ public class QAController {
 
 
     @GetMapping("/greetings")
-    public String greetings() {
-        return qaService.greetings();
+    public Object greetings(@RequestParam("q") String question) {
+        return qaService.greetings(question);
     }
 
     @GetMapping("/world/{subject}")
@@ -25,9 +22,9 @@ public class QAController {
         return qaService.basicWorldAffairs(subject);
     }
 
-    @GetMapping("/weather/{city}")
-    public Object getWeather(@PathVariable("city") String city) {
-        return qaService.getWeather(city);
+    @GetMapping("/weather")
+    public Object getWeather(@RequestParam("q") String question) {
+        return qaService.getWeather(question);
     }
 
 }

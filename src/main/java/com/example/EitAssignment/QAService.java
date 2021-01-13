@@ -2,15 +2,13 @@ package com.example.EitAssignment;
 
 import com.hp.hpl.jena.query.*;
 import lombok.RequiredArgsConstructor;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -18,12 +16,28 @@ public class QAService {
 
     private final String API_KEY = "18e544032fa91c237aea167299f2afb9";
 
-    public String greetings() {
-        return "Hello";
+    public Object greetings(String question) {
+        Map<String, String> map = new HashMap<>();
+        StringBuilder answer = new StringBuilder("Hello Corona!");
+
+        String[] questionWords = question.toUpperCase().split("[ !,?.]+");
+        List<String> wordList = Arrays.asList(questionWords);
+        if (wordList.contains("GOOD")) {
+            answer.append(" Good ");
+            answer.append(wordList.get(wordList.indexOf("GOOD") + 1).toLowerCase() + "!");
+        }
+        if (wordList.contains("HOW")) {
+            answer.append(" I am fine. And you?");
+        }
+        if (wordList.contains("NAME")) {
+            answer.append(" My name is Giash Uddin.");
+        }
+
+        map.put("answer", answer.toString());
+        return map;
     }
 
     public Object basicWorldAffairs(String subject) {
-        //String str = "obama";
         String queryString = "PREFIX pr:<http://xmlns.com/foaf/0.1/>\n" +
                 "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
                 "SELECT DISTINCT ?s ?label WHERE {" + "?s rdfs:label ?label . " +
@@ -57,13 +71,30 @@ public class QAService {
 
     }
 
-    ResponseEntity<?> getWeather(String city) {
+    public Object getWeather(String question) {
+        String[] questionWords = question.toUpperCase().split("[ !,?.]");
+        String city = questionWords[questionWords.length - 1];
+        List<String> words = Arrays.asList(questionWords);
+
+        System.out.println(city);
         RestTemplate restTemplate = new RestTemplate();
-//        ResponseEntity<Object> response = restTemplate
-//                .getForEntity("https://api.openweathermap.org/data/2.5/weather?lat=33.441792&lon=-94.037689&APPID=" + API_KEY + "&units=metric", Object.class);
-//
         ResponseEntity<Object> response = restTemplate
                 .getForEntity("https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + API_KEY + "", Object.class);
-        return response;
+
+        JSONObject object = new JSONObject(response);
+
+        Map<String, Object> map = new HashMap<>();
+
+        JSONObject mainObj = object.getJSONObject("body").getJSONObject("main");
+        if (words.contains("TEMPERATURE")) {
+            map.put("temperature", mainObj.get("temp"));
+        }
+        if (words.contains("HUMIDITY")) {
+            map.put("humidity", mainObj.get("humidity"));
+        }
+
+        Map<String, Object> answer = new HashMap<>();
+        answer.put("answer", map);
+        return answer;
     }
 }
