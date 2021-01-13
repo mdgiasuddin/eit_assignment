@@ -37,37 +37,43 @@ public class QAService {
         return map;
     }
 
-    public Object basicWorldAffairs(String subject) {
-        String queryString = "PREFIX pr:<http://xmlns.com/foaf/0.1/>\n" +
-                "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
-                "SELECT DISTINCT ?s ?label WHERE {" + "?s rdfs:label ?label . " +
-                "?s a pr:Person . " +
-                "FILTER (lang(?label) = 'en') . " +
-                "?label <bif:contains> '" + subject + "' ." +
-                "}";
-        Query query = QueryFactory.create(queryString);
-        QueryExecution qexec = QueryExecutionFactory.sparqlService("http://dbpedia.org/sparql", query);
-        List<Map> mapList = new ArrayList<>();
+    public Object basicWorldAffairs(String question) {
+        String[] questionWords = question.split("[ !,?.]+");
+        String subject = questionWords[questionWords.length - 1];
+
+        Map<String, Object> answer = new HashMap<>();
         try {
+            String queryString = "PREFIX pr:<http://xmlns.com/foaf/0.1/>\n" +
+                    "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
+                    "SELECT DISTINCT ?s ?label WHERE {" + "?s rdfs:label ?label . " +
+                    "?s a pr:Person . " +
+                    "FILTER (lang(?label) = 'en') . " +
+                    "?label <bif:contains> '" + subject + "' ." +
+                    "}";
+            Query query = QueryFactory.create(queryString);
+            QueryExecution qexec = QueryExecutionFactory.sparqlService("http://dbpedia.org/sparql", query);
+            List<Map> mapList = new ArrayList<>();
+
             ResultSet results = qexec.execSelect();
             while (results.hasNext()) {
                 QuerySolution soln = results.nextSolution();
-//                Literal name = soln.getLiteral("s");
                 Object name = soln.get("label");
                 Object url = soln.getResource("s");
                 Map<String, Object> map = new HashMap<>();
                 map.put("name", String.valueOf(name));
-                map.put("url", String.valueOf(url));
+                map.put("Please go to the URL : ", String.valueOf(url));
 
                 mapList.add(map);
-                System.out.println(soln);
-//                System.out.println(object);
             }
+
+            answer.put("answer", mapList);
+            return answer;
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return mapList;
+        answer.put("answer", "Your majesty! Jon Snow knows nothing! So do I!");
+        return answer;
 
     }
 
@@ -76,25 +82,31 @@ public class QAService {
         String city = questionWords[questionWords.length - 1];
         List<String> words = Arrays.asList(questionWords);
 
-        System.out.println(city);
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<Object> response = restTemplate
-                .getForEntity("https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + API_KEY + "", Object.class);
-
-        JSONObject object = new JSONObject(response);
-
-        Map<String, Object> map = new HashMap<>();
-
-        JSONObject mainObj = object.getJSONObject("body").getJSONObject("main");
-        if (words.contains("TEMPERATURE")) {
-            map.put("temperature", mainObj.get("temp"));
-        }
-        if (words.contains("HUMIDITY")) {
-            map.put("humidity", mainObj.get("humidity"));
-        }
-
         Map<String, Object> answer = new HashMap<>();
-        answer.put("answer", map);
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity<Object> response = restTemplate
+                    .getForEntity("https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + API_KEY + "", Object.class);
+
+            JSONObject object = new JSONObject(response);
+
+            Map<String, Object> map = new HashMap<>();
+
+            JSONObject mainObj = object.getJSONObject("body").getJSONObject("main");
+            if (words.contains("TEMPERATURE")) {
+                map.put("temperature", mainObj.get("temp"));
+            }
+            if (words.contains("HUMIDITY")) {
+                map.put("humidity", mainObj.get("humidity"));
+            }
+
+            answer.put("answer", map);
+            return answer;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        answer.put("answer", "Your majesty! Jon Snow knows nothing! So do I!");
         return answer;
     }
 }
