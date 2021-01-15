@@ -3,6 +3,7 @@ package com.example.EitAssignment;
 import com.hp.hpl.jena.query.*;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONObject;
+import org.jsoup.Jsoup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,25 @@ import java.util.*;
 public class QAService {
 
     private final String API_KEY = "18e544032fa91c237aea167299f2afb9";
+
+    private String getDetailsFromUrl(String url) {
+        String content = "";
+        try {
+            content = Jsoup.connect(url).get().text();
+            int index = content.indexOf("Property Value");
+
+            if (index != -1)
+                content = content.substring(0, index);
+            index = content.lastIndexOf("dbpedia.org");
+
+            if (index != -1)
+                content = content.substring(index + 12);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return content;
+    }
 
     public Object greetings(String question) {
         Map<String, String> map = new HashMap<>();
@@ -61,11 +81,11 @@ public class QAService {
                 Object url = soln.getResource("s");
                 Map<String, Object> map = new HashMap<>();
                 map.put("name", String.valueOf(name));
-                map.put("Please go to the URL : ", String.valueOf(url));
+                map.put("url", String.valueOf(url));
+                map.put("content", getDetailsFromUrl(String.valueOf(url)));
 
                 mapList.add(map);
             }
-
 
             answer.put("answer", mapList);
             return answer;
