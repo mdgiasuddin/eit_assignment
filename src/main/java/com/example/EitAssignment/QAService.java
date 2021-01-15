@@ -114,11 +114,15 @@ public class QAService {
             Map<String, Object> map = new HashMap<>();
 
             JSONObject mainObj = object.getJSONObject("body").getJSONObject("main");
+            JSONObject cloudObj = object.getJSONObject("body").getJSONObject("clouds");
             if (words.contains("TEMPERATURE")) {
                 map.put("temperature", mainObj.get("temp"));
             }
             if (words.contains("HUMIDITY")) {
                 map.put("humidity", mainObj.get("humidity"));
+            }
+            if (words.contains("CLOUD") || words.contains("CLOUDY")) {
+                map.put("cloud", cloudObj.get("all"));
             }
 
             answer.put("answer", map);
