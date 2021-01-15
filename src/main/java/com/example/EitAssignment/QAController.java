@@ -25,6 +25,11 @@ public class QAController {
         return qaService.basicWorldAffairs(question);
     }
 
+    @GetMapping("/world/affairs")
+    public Object basicWoAffairs(@RequestParam("q") String question) {
+        return qaService.basicWorldAffairs(question);
+    }
+
     @GetMapping("/weather")
     public Object getWeather(@RequestParam("q") String question) {
         return qaService.getWeather(question);
