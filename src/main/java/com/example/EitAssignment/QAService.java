@@ -82,7 +82,7 @@ public class QAService {
                 Map<String, Object> map = new HashMap<>();
                 map.put("name", String.valueOf(name));
                 map.put("url", String.valueOf(url));
-                map.put("content", getDetailsFromUrl(String.valueOf(url)));
+                map.put("description", getDetailsFromUrl(String.valueOf(url)));
 
                 mapList.add(map);
             }
