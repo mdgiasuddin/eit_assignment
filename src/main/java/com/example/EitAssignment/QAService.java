@@ -66,6 +66,7 @@ public class QAService {
                 mapList.add(map);
             }
 
+
             answer.put("answer", mapList);
             return answer;
         } catch (Exception e) {
